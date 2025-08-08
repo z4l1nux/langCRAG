@@ -1,0 +1,36 @@
+{
+  "name": "langcrag-capec",
+  "version": "1.0.0",
+  "description": "Sistema RAG para análise de ataques CAPEC usando TypeScript",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "create-db": "echo 'INFO: Certifique-se de que os servidores Ollama e ChromaDB estão em execução. Use \"npm run ollama:start\" e \"npm run chroma:start\" em outros terminais.' && ts-node src/createDatabase.ts",
+    "ollama:start": "ollama serve",
+    "chroma:install": "python3 -m venv .chroma-venv && .chroma-venv/bin/pip install -U pip chromadb",
+    "chroma:start": ".chroma-venv/bin/chroma run --path ./data --host 127.0.0.1 --port 8000",
+
+    "chat": "ts-node src/chat.ts",
+    "test-ollama": "ts-node src/testOllama.ts"
+  },
+  "keywords": ["rag", "capec", "security", "typescript", "langchain"],
+  "author": "Seu Nome",
+  "license": "MIT",
+  "dependencies": {
+    "@langchain/openai": "^0.0.14",
+    "@langchain/community": "^0.0.20",
+    "langchain": "^0.1.0",
+    "@langchain/community": "^0.0.20",
+    "chromadb": "^1.7.3",
+    "vectordb": "^0.1.4",
+    "dotenv": "^16.3.1",
+    "typescript": "^5.2.2",
+    "ollama": "^0.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.0",
+    "ts-node": "^10.9.1"
+  }
+} 
