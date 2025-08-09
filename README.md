@@ -4,7 +4,7 @@ Este projeto implementa o equivalente TypeScript do código Python para sistema 
 
 ## 🧭 Arquitetura RAG
 
-![Modelo de Arquitetura RAG](docs/rag-architecture-model.png)
+![Modelo de Arquitetura RAG](docs/rag-architecture-model.jpg)
 
 Visão geral do fluxo: (1) pergunta do cliente → (2) busca semântica no banco vetorial → (3) prompt com contexto para o LLM → (4) pós-processamento e resposta.
 
