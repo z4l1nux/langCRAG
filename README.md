@@ -1,6 +1,6 @@
 # 🔐 Sistema RAG CAPEC - Implementação TypeScript
 
-Este projeto implementa o equivalente TypeScript do código Python para sistema RAG (Retrieval-Augmented Generation) usando Ollama e LanceDB, processando o arquivo `capec-stride-mapping.json` ao invés de PDFs.
+Este projeto é um sistema RAG (Retrieval-Augmented Generation) para consulta e exploração do catálogo CAPEC com foco no mapeamento S.T.R.I.D.E. Ele utiliza embeddings servidos pelo Ollama e armazenamento vetorial no LanceDB, oferecendo chat via CLI e uma interface web simples. A ingestão aceita múltiplos formatos de arquivo: `.json`, `.md`, `.csv`, `.xml`, `.docx` e `.pdf`.
 
 ## 🧭 Arquitetura RAG
 
@@ -19,14 +19,14 @@ Visão geral do fluxo: (1) pergunta do cliente → (2) busca semântica no banco
 
 - **TypeScript** - Linguagem principal
 - **LangChain** - Framework para construção de fluxos de IA
-- **Ollama** - LLM local (Mistral) para embeddings e geração
+- **Ollama** - LLM local (modelo atual padrão: gpt-oss:20b; você pode testar outros modelos e escolher o mais satisfatório)
 - **LanceDB** - Banco de dados vetorial
 - **Node.js** - Runtime JavaScript
 
 ## 📋 Pré-requisitos
 
 - Node.js 18+ instalado
-- Ollama rodando com modelo Mistral
+- Ollama rodando (modelo atual: gpt-oss:20b). Você pode trocar por outros modelos via variável `OLLAMA_MODEL`.
 - Arquivo `capec-stride-mapping.json` (já incluído no projeto)
 
 ## 🚀 Instalação e Configuração
@@ -41,8 +41,17 @@ npm install
 # Verificar se Ollama está rodando
 curl http://192.168.1.57:11434/v1/models
 
-# Se necessário, instalar Mistral
-ollama pull mistral:latest
+# Modelo atual recomendado
+ollama pull gpt-oss:20b
+
+# Você pode testar outros e comparar resultados
+# Exemplos:
+#   ollama pull mistral:latest
+#   ollama pull llama3:8b
+#   ollama pull qwen2.5:7b
+
+# Para usar um modelo específico no app (ou no .env)
+# export OLLAMA_MODEL=gpt-oss:20b
 ```
 
 ### 3. **Criar banco de dados:**
