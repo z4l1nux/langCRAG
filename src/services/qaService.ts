@@ -59,7 +59,7 @@ export async function answerQuestion(pergunta: string): Promise<QAResult> {
 
   const modelo = new Ollama({
     baseUrl: process.env.OLLAMA_BASE_URL || 'http://192.168.1.57:11434',
-    model: process.env.OLLAMA_MODEL || 'mistral:latest'
+    model: process.env.OLLAMA_MODEL || 'gpt-oss:20b'
   });
 
   const resposta = await modelo.invoke(formattedPrompt);
