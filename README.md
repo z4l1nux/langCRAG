@@ -2,6 +2,12 @@
 
 Este projeto implementa o equivalente TypeScript do código Python para sistema RAG (Retrieval-Augmented Generation) usando Ollama e LanceDB, processando o arquivo `capec-stride-mapping.json` ao invés de PDFs.
 
+## 🧭 Arquitetura RAG
+
+![Modelo de Arquitetura RAG](docs/rag-architecture-model.png)
+
+Visão geral do fluxo: (1) pergunta do cliente → (2) busca semântica no banco vetorial → (3) prompt com contexto para o LLM → (4) pós-processamento e resposta.
+
 ## 🎯 Funcionalidades
 
 - **Processamento de dados CAPEC**: Converte o arquivo JSON de mapeamento CAPEC em chunks processáveis
@@ -61,14 +67,30 @@ npm run build              # Compila TypeScript
 ## 🏗️ Estrutura do Projeto
 
 ```
-src/
-├── utils/
-│   └── documentProcessor.ts    # Processador de documentos CAPEC
-├── types/
-│   └── index.ts               # Definições TypeScript
-├── createDatabase.ts          # Criação do banco vetorial
-├── chat.ts                   # Chat interativo
-└── testOllama.ts            # Teste de conexão
+.
+├── data/
+│   └── capec-stride-mapping.md        # Base CAPEC em markdown
+├── docs/
+│   └── rag-architecture-model.png     # Imagem da arquitetura (adicione aqui)
+├── public/
+│   └── index.html                     # UI web estática
+├── src/
+│   ├── services/
+│   │   └── qaService.ts               # Q&A compartilhado (RAG + filtro STRIDE)
+│   ├── types/
+│   │   └── index.ts                   # Tipos TypeScript
+│   ├── utils/
+│   │   └── documentProcessor.ts       # Processador e chunker de documentos
+│   ├── chat.ts                        # CLI do chat
+│   ├── createDatabase.ts              # Criação/população do LanceDB
+│   ├── server.ts                      # Servidor Express (API / UI)
+│   └── testOllama.ts                  # Teste de conectividade com Ollama
+├── lancedb/                           # Dados LanceDB (gerado em runtime)
+├── env.example                        # Exemplo de configuração
+├── package.json                       # Scripts e dependências
+├── README.md                          # Este guia
+├── SETUP.md                           # Passo a passo detalhado
+└── tsconfig.json                      # Configuração TypeScript
 ```
 
 ## 💬 Como Usar
