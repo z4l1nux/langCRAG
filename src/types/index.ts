@@ -18,6 +18,7 @@ export interface DocumentChunk {
     attack: string;
     link?: string;
     level: number;
+    filetype?: string;
   };
 }
 

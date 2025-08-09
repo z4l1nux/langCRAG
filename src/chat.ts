@@ -6,6 +6,7 @@ import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { Ollama } from '@langchain/community/llms/ollama';
 import * as readline from 'readline';
 import * as path from 'path';
+import * as util from 'util';
 
 // Carrega as variáveis de ambiente
 config();
@@ -13,12 +14,20 @@ config();
 const DB_PATH = path.join(__dirname, '..', 'chroma_db');
 
 const promptTemplate = `
-Responda a pergunta do usuário:
-{pergunta} 
+Você é um assistente que responde ESTRITAMENTE com base na evidência fornecida.
 
-com base nessas informações abaixo:
+Tarefa do usuário (PT-BR):
+{pergunta}
 
-{base_conhecimento}`;
+Evidência (trechos relevantes da base):
+{base_conhecimento}
+
+Instruções de resposta:
+- Se a evidência contiver os itens pedidos, responda com uma lista objetiva contendo código CAPEC e título.
+- Se a evidência não contiver a resposta, diga claramente que não encontrou na base.
+- Não invente conteúdo que não esteja na evidência.
+- Responda em português do Brasil.
+`;
 
 async function askQuestion() {
   const rl = readline.createInterface({
@@ -58,7 +67,7 @@ async function processQuestion(pergunta: string) {
     // Carrega o banco de dados (LanceDB)
     const embeddingFunction = new OllamaEmbeddings({
       baseUrl: process.env.OLLAMA_BASE_URL || 'http://192.168.1.57:11434',
-      model: process.env.OLLAMA_EMBEDDINGS_MODEL || process.env.OLLAMA_MODEL || 'mistral:latest'
+      model: process.env.OLLAMA_EMBEDDINGS_MODEL || 'nomic-embed-text:latest'
     });
 
     const dbDir = process.env.LANCEDB_DIR || path.join(__dirname, '..', 'lancedb');
@@ -70,6 +79,13 @@ async function processQuestion(pergunta: string) {
     const resultados = await db.similaritySearchWithScore(pergunta, 6);
     if (resultados.length === 0) {
       console.log("❌ Não conseguiu encontrar alguma informação relevante na base");
+      return;
+    }
+
+    // Tenta responder diretamente para perguntas do tipo "Quais CAPECs são de <categoria>?"
+    const respostaDireta = tryDirectCategoryAnswer(pergunta, resultados.map(r => r[0].pageContent));
+    if (respostaDireta) {
+      console.log(respostaDireta);
       return;
     }
 
@@ -104,3 +120,25 @@ if (require.main === module) {
 }
 
 export { askQuestion, processQuestion }; 
+
+function tryDirectCategoryAnswer(pergunta: string, contents: string[]): string | null {
+  const categoryMatch = (pergunta.toLowerCase().match(/de\s+([a-zA-Z \-]+)/) || [])[1]?.trim();
+  const candidate = categoryMatch || pergunta.toLowerCase();
+
+  // Procura um documento de categoria correspondente
+  const doc = contents.find(c => /CATEGORIA:\s*/i.test(c) && c.toLowerCase().includes(candidate));
+  if (!doc) return null;
+
+  // Extrai entradas CAPEC (id, título, link) do markdown
+  const capecs: { id: string; title: string; link: string }[] = [];
+  const regex = /\[\s*CAPEC-(\d+):\s*([^\]]+)\]\(([^)]+)\)/g;
+  let m: RegExpExecArray | null;
+  while ((m = regex.exec(doc)) !== null) {
+    capecs.push({ id: `CAPEC-${m[1]}`, title: m[2].trim(), link: m[3].trim() });
+  }
+
+  if (capecs.length === 0) return null;
+
+  const linhas = capecs.map(c => `- ${c.id}: ${c.title} — ${c.link}`);
+  return `✅ Encontrado na base:\n${linhas.join('\n')}`;
+}

@@ -1,4 +1,8 @@
 import { CAPECMapping, DocumentChunk } from '../types';
+import { parse as csvParse } from 'csv-parse/sync';
+import * as mammoth from 'mammoth';
+import pdfParse from 'pdf-parse';
+import * as xml2js from 'xml2js';
 
 export class DocumentProcessor {
   private chunks: DocumentChunk[] = [];
@@ -13,6 +17,92 @@ export class DocumentProcessor {
     this.processNode(root.children, "CAPEC S.T.R.I.D.E. Mapping", 0);
     
     return this.chunks;
+  }
+
+  async processFile(fileContent: Buffer, extension: string): Promise<DocumentChunk[]> {
+    switch (extension) {
+      case '.json':
+        return this.processCAPECData(JSON.parse(fileContent.toString('utf-8')));
+      case '.csv':
+        return this.processCSV(fileContent.toString('utf-8'));
+      case '.md':
+        return this.processMD(fileContent.toString('utf-8'));
+      case '.xml':
+        return await this.processXML(fileContent.toString('utf-8'));
+      case '.docx':
+        return await this.processDOCX(fileContent);
+      case '.pdf':
+        return await this.processPDF(fileContent);
+      default:
+        console.warn(`⚠️ Extensão de arquivo não suportada: ${extension}`);
+        return [];
+    }
+  }
+
+  private processCSV(content: string): DocumentChunk[] {
+    const records = csvParse(content, { columns: true });
+    return records.map((record: any, index: number) => ({
+      id: `csv-${index}`,
+      content: JSON.stringify(record),
+      metadata: { filetype: '.csv', category: '', attack: '', level: 0 }
+    }));
+  }
+
+  private processMD(content: string): DocumentChunk[] {
+    const chunks: DocumentChunk[] = [];
+    const sectionRegex = /^##\s+([^\n]+)\n([\s\S]*?)(?=^##\s+|\Z)/gm;
+    let match: RegExpExecArray | null;
+
+    // Se existirem seções de segundo nível (##), cria um chunk por seção
+    while ((match = sectionRegex.exec(content)) !== null) {
+      const categoryTitle = match[1].trim();
+      const sectionBody = match[2].trim();
+
+      chunks.push({
+        id: `md-${categoryTitle.toLowerCase().replace(/\s+/g, '-')}`,
+        content: `CATEGORIA: ${categoryTitle}\n\n${sectionBody}`,
+        metadata: { filetype: '.md', category: categoryTitle, attack: '', level: 0 }
+      });
+    }
+
+    // Se não encontrou seções, retorna o conteúdo inteiro como um único chunk
+    if (chunks.length === 0) {
+      chunks.push({
+        id: 'md-1',
+        content,
+        metadata: { filetype: '.md', category: '', attack: '', level: 0 }
+      });
+    }
+
+    return chunks;
+  }
+
+  private async processXML(content: string): Promise<DocumentChunk[]> {
+    const parser = new xml2js.Parser();
+    const result = await parser.parseStringPromise(content);
+    return [{
+      id: 'xml-1',
+      content: JSON.stringify(result),
+      metadata: { filetype: '.xml', category: '', attack: '', level: 0 }
+    }];
+  }
+
+  private async processDOCX(content: Buffer): Promise<DocumentChunk[]> {
+    const result = await mammoth.extractRawText({ buffer: content });
+    return [{
+      id: 'docx-1',
+      content: result.value,
+      metadata: { filetype: '.docx', category: '', attack: '', level: 0 }
+    }];
+  }
+
+  private async processPDF(content: Buffer): Promise<DocumentChunk[]> {
+    const result = await pdfParse(content);
+    return [{
+      id: 'pdf-1',
+      content: result.text,
+      metadata: { filetype: '.pdf', category: '', attack: '', level: 0 }
+    }];
   }
 
   /**
@@ -54,6 +144,21 @@ export class DocumentProcessor {
           }
         };
         this.chunks.push(chunk);
+
+        // Se o nó possui uma lista de itens (ex.: markdown com bullets), preserve como campo adicional
+        if (typeof (node as any).items === 'string' && (node as any).items.trim().length > 0) {
+          const itemsChunk: DocumentChunk = {
+            id: `${key}-items`,
+            content: (node as any).items,
+            metadata: {
+              category: key,
+              attack: '',
+              link: node.link || '',
+              level
+            }
+          };
+          this.chunks.push(itemsChunk);
+        }
       }
 
       // Processa recursivamente os filhos

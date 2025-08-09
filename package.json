@@ -22,15 +22,20 @@
     "@langchain/openai": "^0.0.14",
     "@langchain/community": "^0.0.20",
     "langchain": "^0.1.0",
-    "@langchain/community": "^0.0.20",
     "chromadb": "^1.7.3",
     "vectordb": "^0.1.4",
     "dotenv": "^16.3.1",
     "typescript": "^5.2.2",
-    "ollama": "^0.5.0"
+    "ollama": "^0.5.0",
+    "mammoth": "^1.7.2",
+    "pdf-parse": "^1.1.1",
+    "xml2js": "^0.6.2",
+    "csv-parse": "^5.5.6"
   },
   "devDependencies": {
     "@types/node": "^20.8.0",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "@types/pdf-parse": "^1.1.4",
+    "@types/xml2js": "^0.4.14"
   }
 } 

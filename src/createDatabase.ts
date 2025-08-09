@@ -25,18 +25,29 @@ async function createDatabase() {
 }
 
 async function loadDocuments() {
-  console.log('📖 Carregando documentos CAPEC...');
-
-  const jsonPath = path.join(__dirname, '..', 'capec-stride-mapping.json');
-  const jsonContent = fs.readFileSync(jsonPath, 'utf-8');
-  const capecData: CAPECMapping = JSON.parse(jsonContent);
-
+  console.log('📖 Carregando documentos...');
+  const dataDir = path.join(__dirname, '..', 'data');
+  const files = fs.readdirSync(dataDir);
   const processor = new DocumentProcessor();
-  const chunks = processor.processCAPECData(capecData);
+  let allChunks: any[] = [];
 
-  const documents = chunks.map(chunk => ({
+  for (const file of files) {
+    const filePath = path.join(dataDir, file);
+    const fileContent = fs.readFileSync(filePath);
+    const extension = path.extname(file).toLowerCase();
+
+    const chunks = await processor.processFile(fileContent, extension);
+    allChunks = allChunks.concat(chunks);
+  }
+
+  const documents = allChunks.map(chunk => ({
     pageContent: chunk.content,
-    metadata: chunk.metadata
+    metadata: {
+      category: String(chunk.metadata?.category ?? ''),
+      attack: String(chunk.metadata?.attack ?? ''),
+      link: String(chunk.metadata?.link ?? ''),
+      level: Number(chunk.metadata?.level ?? 0)
+    }
   }));
 
   console.log(`✅ ${documents.length} documentos carregados`);
@@ -78,7 +89,7 @@ async function vectorizeChunks(chunks: any[]) {
 
   const embeddings = new OllamaEmbeddings({
     baseUrl: process.env.OLLAMA_BASE_URL || 'http://192.168.1.57:11434',
-    model: process.env.OLLAMA_EMBEDDINGS_MODEL || process.env.OLLAMA_MODEL || 'mistral:latest'
+    model: process.env.OLLAMA_EMBEDDINGS_MODEL || 'nomic-embed-text:latest'
   });
 
   const dbDir = process.env.LANCEDB_DIR || path.join(__dirname, '..', 'lancedb');
