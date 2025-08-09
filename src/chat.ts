@@ -7,11 +7,12 @@ import { Ollama } from '@langchain/community/llms/ollama';
 import * as readline from 'readline';
 import * as path from 'path';
 import * as util from 'util';
+import { answerQuestion } from './services/qaService';
 
 // Carrega as variáveis de ambiente
 config();
 
-const DB_PATH = path.join(__dirname, '..', 'chroma_db');
+// Removido: DB_PATH (Chroma) não é usado. Usamos LanceDB.
 
 const promptTemplate = `
 Você é um assistente que responde ESTRITAMENTE com base na evidência fornecida.
@@ -82,31 +83,9 @@ async function processQuestion(pergunta: string) {
       return;
     }
 
-    // Tenta responder diretamente para perguntas do tipo "Quais CAPECs são de <categoria>?"
-    const respostaDireta = tryDirectCategoryAnswer(pergunta, resultados.map(r => r[0].pageContent));
-    if (respostaDireta) {
-      console.log(respostaDireta);
-      return;
-    }
-
-    const textosResultado = resultados.map(resultado => resultado[0].pageContent);
-    const baseConhecimento = textosResultado.join("\n\n----\n\n");
-
-    // Cria o prompt
-    const prompt = ChatPromptTemplate.fromTemplate(promptTemplate);
-    const formattedPrompt = await prompt.format({
-      pergunta: pergunta,
-      base_conhecimento: baseConhecimento
-    });
-
-    // Gera a resposta
-    const modelo = new Ollama({
-      baseUrl: process.env.OLLAMA_BASE_URL || 'http://192.168.1.57:11434',
-      model: process.env.OLLAMA_MODEL || 'mistral:latest'
-    });
-
-    const resposta = await modelo.invoke(formattedPrompt);
-    console.log("🤖 Resposta da IA:", resposta);
+    // Usa serviço compartilhado (aplica filtro STRIDE + resposta direta quando aplicável)
+    const result = await answerQuestion(pergunta);
+    console.log("🤖 Resposta da IA:", result.answer);
 
   } catch (error) {
     console.error('❌ Erro ao processar pergunta:', error);

@@ -1,12 +1,12 @@
 # 🔐 Sistema RAG CAPEC - Implementação TypeScript
 
-Este projeto implementa o equivalente TypeScript do código Python para sistema RAG (Retrieval-Augmented Generation) usando Ollama e ChromaDB, processando o arquivo `capec-stride-mapping.json` ao invés de PDFs.
+Este projeto implementa o equivalente TypeScript do código Python para sistema RAG (Retrieval-Augmented Generation) usando Ollama e LanceDB, processando o arquivo `capec-stride-mapping.json` ao invés de PDFs.
 
 ## 🎯 Funcionalidades
 
 - **Processamento de dados CAPEC**: Converte o arquivo JSON de mapeamento CAPEC em chunks processáveis
 - **Vetorização com Ollama**: Usa embeddings do Ollama para criar representações vetoriais
-- **Banco vetorial ChromaDB**: Armazena e consulta embeddings
+- **Banco vetorial LanceDB**: Armazena e consulta embeddings
 - **Chat interativo**: Interface para perguntas sobre ataques de segurança
 
 ## 🛠️ Tecnologias Utilizadas
@@ -14,7 +14,7 @@ Este projeto implementa o equivalente TypeScript do código Python para sistema 
 - **TypeScript** - Linguagem principal
 - **LangChain** - Framework para construção de fluxos de IA
 - **Ollama** - LLM local (Mistral) para embeddings e geração
-- **ChromaDB** - Banco de dados vetorial
+- **LanceDB** - Banco de dados vetorial
 - **Node.js** - Runtime JavaScript
 
 ## 📋 Pré-requisitos
@@ -82,7 +82,7 @@ Este comando irá:
 - Ler o arquivo `capec-stride-mapping.json`
 - Processar todos os ataques e categorias
 - Gerar embeddings usando Ollama
-- Armazenar no ChromaDB
+- Armazenar no LanceDB
 
 ### **2. Usar o chat:**
 ```bash
@@ -109,7 +109,7 @@ O sistema processa:
 
 - **Processamento local** - Dados não saem da sua infraestrutura
 - **Ollama local** - Sem dependência de APIs externas
-- **ChromaDB local** - Controle total sobre os dados
+- **LanceDB local** - Controle total sobre os dados
 
 ## 🚀 Próximos Passos
 
@@ -120,4 +120,4 @@ O sistema processa:
 
 ---
 
-**🔐 Implementação TypeScript do código Python original com Ollama e ChromaDB** 
+**🔐 Implementação TypeScript do código Python original com Ollama e LanceDB** 

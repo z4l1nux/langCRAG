@@ -16,8 +16,8 @@ Edite o arquivo `.env` e adicione sua chave da OpenAI:
 # OpenAI API Key (OBRIGATÓRIO)
 OPENAI_API_KEY=sua_chave_api_aqui
 
-# ChromaDB Configuration
-CHROMA_DB_PATH=./chroma_db
+# LanceDB Configuration
+LANCEDB_DIR=./lancedb
 
 # Model Configuration
 OPENAI_MODEL=gpt-3.5-turbo
@@ -122,8 +122,8 @@ npm run chat
 - Execute `npm install` novamente
 - Verifique se todas as dependências foram instaladas
 
-### Erro: "ChromaDB connection failed"
-- Verifique se o diretório `./chroma_db` pode ser criado
+### Erro: "LanceDB execution failed"
+- Verifique se o diretório `./lancedb` pode ser criado
 - Confirme permissões de escrita no diretório
 
 ## 📊 Monitoramento

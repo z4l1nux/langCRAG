@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat CAPEC - Web</title>
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, sans-serif; margin: 0; padding: 0; }
+    header { padding: 16px; background: #0f172a; color: #fff; }
+    main { max-width: 900px; margin: 0 auto; padding: 16px; }
+    .card { background: #1118270d; border: 1px solid #11182733; border-radius: 12px; padding: 16px; }
+    .row { display: flex; gap: 8px; }
+    input, button, textarea { font: inherit; }
+    input, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #374151; background: transparent; color: inherit; }
+    button { padding: 12px 16px; border-radius: 10px; border: 0; background: #2563eb; color: #fff; cursor: pointer; }
+    button:disabled { opacity: .6; cursor: default; }
+    .messages { display: grid; gap: 12px; margin-top: 16px; }
+    .msg { padding: 12px; border-radius: 10px; }
+    .user { background: #10b98122; border: 1px solid #10b98155; }
+    .bot  { background: #2563eb22; border: 1px solid #2563eb55; }
+    .sources { font-size: .9em; opacity: .8; }
+    .footer { margin-top: 12px; font-size: .9em; opacity: .7; }
+    .hint { font-size: .9em; opacity: .8; margin-top: 6px; }
+    .spinner { display:inline-block; width: 18px; height: 18px; border: 3px solid #93c5fd; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite; vertical-align: middle; margin-left: 8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+  <script>
+    async function ask(ev) {
+      ev?.preventDefault?.();
+      const input = document.getElementById('q');
+      const btn = document.getElementById('send');
+      const messages = document.getElementById('messages');
+      const q = input.value.trim();
+      if (!q) return;
+      input.value = '';
+      btn.disabled = true;
+      const loadingId = `load-${Date.now()}`;
+      messages.innerHTML += `<div class="msg user"><b>Você:</b> ${q}</div>`;
+      messages.innerHTML += `<div id="${loadingId}" class="msg bot"><b>IA:</b> Processando<span class="spinner"></span></div>`;
+      messages.scrollTop = messages.scrollHeight;
+      try {
+        const res = await fetch('/api/ask', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question: q }) });
+        const data = await res.json();
+        const ans = (data && data.answer) ? data.answer : 'Sem resposta';
+        const srcs = (data && data.sources) ? data.sources : [];
+        const srcHtml = srcs.map((s, i) => `<li><code>${(s.metadata?.category||'')}</code> ${(s.metadata?.attack||'')} <small>${(s.metadata?.link||'')}</small></li>`).join('');
+        const loadEl = document.getElementById(loadingId);
+        if (loadEl) loadEl.remove();
+        messages.innerHTML += `<div class="msg bot"><b>IA:</b><br/>${ans.replaceAll('\n','<br/>')}<div class="sources"><details><summary>Fontes (${srcs.length})</summary><ul>${srcHtml}</ul></details></div></div>`;
+      } catch (e) {
+        const loadEl = document.getElementById(loadingId);
+        if (loadEl) loadEl.remove();
+        messages.innerHTML += `<div class="msg bot"><b>Erro:</b> ${e}</div>`;
+      } finally {
+        btn.disabled = false;
+        messages.scrollTop = messages.scrollHeight;
+      }
+    }
+    window.addEventListener('DOMContentLoaded', ()=>{
+      document.getElementById('form').addEventListener('submit', ask);
+      document.getElementById('send').addEventListener('click', ask);
+    });
+  </script>
+ </head>
+ <body>
+  <header>
+    <h1>🔐 Chat CAPEC - Web</h1>
+  </header>
+  <main>
+    <div class="card">
+      <form id="form" class="row" onsubmit="return false;">
+        <input id="q" placeholder="Escreva sua pergunta..." autocomplete="off" />
+        <button id="send" type="submit">Enviar</button>
+      </form>
+      <div class="hint">Ex.: Quais capecs são de repudiation?</div>
+      <div id="messages" class="messages"></div>
+      <div class="footer">Backend: Express + LanceDB + Ollama</div>
+    </div>
+  </main>
+ </body>
+ </html>
+
+
