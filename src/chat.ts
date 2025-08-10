@@ -8,6 +8,7 @@ import * as readline from 'readline';
 import * as path from 'path';
 import * as util from 'util';
 import { answerQuestion } from './services/qaService';
+import { OLLAMA_BASE_URL, OLLAMA_EMBEDDINGS_MODEL, LANCEDB_DIR } from './config';
 
 // Carrega as variáveis de ambiente
 config();
@@ -67,11 +68,11 @@ async function processQuestion(pergunta: string) {
 
     // Carrega o banco de dados (LanceDB)
     const embeddingFunction = new OllamaEmbeddings({
-      baseUrl: process.env.OLLAMA_BASE_URL || 'http://192.168.1.57:11434',
-      model: process.env.OLLAMA_EMBEDDINGS_MODEL || 'nomic-embed-text:latest'
+      baseUrl: OLLAMA_BASE_URL,
+      model: OLLAMA_EMBEDDINGS_MODEL
     });
 
-    const dbDir = process.env.LANCEDB_DIR || path.join(__dirname, '..', 'lancedb');
+    const dbDir = LANCEDB_DIR;
     const ldb = await connect(dbDir);
     const table = await ldb.openTable('capec_attacks');
     const db = new LanceDBStore(embeddingFunction, { table });

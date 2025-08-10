@@ -6,6 +6,7 @@ import { DocumentProcessor } from './utils/documentProcessor';
 import { CAPECMapping } from './types';
 import * as fs from 'fs';
 import * as path from 'path';
+import { OLLAMA_BASE_URL, OLLAMA_EMBEDDINGS_MODEL, LANCEDB_DIR, LANCEDB_BATCH_SIZE } from './config';
 
 // Carrega as variáveis de ambiente
 config();
@@ -88,11 +89,11 @@ async function vectorizeChunks(chunks: any[]) {
   console.log('🔢 Vetorizando chunks (LanceDB)...');
 
   const embeddings = new OllamaEmbeddings({
-    baseUrl: process.env.OLLAMA_BASE_URL || 'http://192.168.1.57:11434',
-    model: process.env.OLLAMA_EMBEDDINGS_MODEL || 'nomic-embed-text:latest'
+    baseUrl: OLLAMA_BASE_URL,
+    model: OLLAMA_EMBEDDINGS_MODEL
   });
 
-  const dbDir = process.env.LANCEDB_DIR || path.join(__dirname, '..', 'lancedb');
+  const dbDir = LANCEDB_DIR;
   const ldb = await connect(dbDir);
   const tableName = 'capec_attacks';
 
@@ -109,7 +110,7 @@ async function vectorizeChunks(chunks: any[]) {
   }
 
   const store = new LanceDBStore(embeddings, { table });
-  const batchSize = Number(process.env.LANCEDB_BATCH_SIZE || 100);
+  const batchSize = LANCEDB_BATCH_SIZE;
   for (let i = 0; i < chunks.length; i += batchSize) {
     const batch = chunks.slice(i, i + batchSize).map((doc: any) => ({
       pageContent: String(doc.pageContent ?? ''),

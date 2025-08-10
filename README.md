@@ -38,8 +38,9 @@ npm install
 
 ### 2. **Configurar Ollama:**
 ```bash
-# Verificar se Ollama está rodando
-curl http://192.168.1.57:11434/v1/models
+# Verificar se Ollama está rodando (usa OLLAMA_BASE_URL do .env)
+source ./.env 2>/dev/null || true
+curl -sS "$OLLAMA_BASE_URL/api/tags" | head -c 400
 
 # Modelo atual recomendado
 ollama pull gpt-oss:20b
@@ -56,12 +57,12 @@ ollama pull gpt-oss:20b
 
 ### 3. **Criar banco de dados:**
 ```bash
-OLLAMA_BASE_URL=http://192.168.1.57:11434 npm run create-db
+npm run create-db
 ```
 
 ### 4. **Usar o chat:**
 ```bash
-OLLAMA_BASE_URL=http://192.168.1.57:11434 npm run chat
+npm run chat
 ```
 
 ## 🔧 Scripts Disponíveis
@@ -106,7 +107,7 @@ npm run build              # Compila TypeScript
 
 ### **1. Criar o banco de dados:**
 ```bash
-OLLAMA_BASE_URL=http://192.168.1.57:11434 npm run create-db
+npm run create-db
 ```
 
 Este comando irá:
@@ -117,7 +118,7 @@ Este comando irá:
 
 ### **2. Usar o chat:**
 ```bash
-OLLAMA_BASE_URL=http://192.168.1.57:11434 npm run chat
+npm run chat
 ```
 
 ### **Exemplos de perguntas:**

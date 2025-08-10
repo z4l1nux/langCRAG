@@ -10,18 +10,17 @@ Crie um arquivo `.env` na raiz do projeto:
 cp env.example .env
 ```
 
-Edite o arquivo `.env` e adicione sua chave da OpenAI:
+Edite o arquivo `.env` e configure as variáveis de ambiente:
 
 ```env
-# OpenAI API Key (OBRIGATÓRIO)
-OPENAI_API_KEY=sua_chave_api_aqui
+# Ollama / Modelos
+OLLAMA_BASE_URL=http://127.0.0.1:11434
+OLLAMA_MODEL=gpt-oss:20b
+OLLAMA_EMBEDDINGS_MODEL=nomic-embed-text:latest
 
-# LanceDB Configuration
+# LanceDB
 LANCEDB_DIR=./lancedb
-
-# Model Configuration
-OPENAI_MODEL=gpt-3.5-turbo
-EMBEDDING_MODEL=text-embedding-ada-002
+LANCEDB_BATCH_SIZE=100
 ```
 
 ### 2. Obter Chave da OpenAI

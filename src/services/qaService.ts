@@ -5,6 +5,7 @@ import { OllamaEmbeddings } from '@langchain/community/embeddings/ollama';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
 import { Ollama } from '@langchain/community/llms/ollama';
 import * as path from 'path';
+import { OLLAMA_BASE_URL, OLLAMA_MODEL, OLLAMA_EMBEDDINGS_MODEL, LANCEDB_DIR } from '../config';
 
 config();
 
@@ -32,11 +33,11 @@ export interface QAResult {
 export async function answerQuestion(pergunta: string): Promise<QAResult> {
   // Embeddings e BD
   const embeddingFunction = new OllamaEmbeddings({
-    baseUrl: process.env.OLLAMA_BASE_URL || 'http://192.168.1.57:11434',
-    model: process.env.OLLAMA_EMBEDDINGS_MODEL || 'nomic-embed-text:latest'
+    baseUrl: OLLAMA_BASE_URL,
+    model: OLLAMA_EMBEDDINGS_MODEL
   });
 
-  const dbDir = process.env.LANCEDB_DIR || path.join(__dirname, '..', '..', 'lancedb');
+  const dbDir = LANCEDB_DIR;
   const ldb = await connect(dbDir);
   const table = await ldb.openTable('capec_attacks');
   const db = new LanceDBStore(embeddingFunction, { table });
@@ -58,8 +59,8 @@ export async function answerQuestion(pergunta: string): Promise<QAResult> {
   const formattedPrompt = await prompt.format({ pergunta, base_conhecimento: baseConhecimento });
 
   const modelo = new Ollama({
-    baseUrl: process.env.OLLAMA_BASE_URL || 'http://192.168.1.57:11434',
-    model: process.env.OLLAMA_MODEL || 'gpt-oss:20b'
+    baseUrl: OLLAMA_BASE_URL,
+    model: OLLAMA_MODEL
   });
 
   const resposta = await modelo.invoke(formattedPrompt);
