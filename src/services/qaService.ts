@@ -30,7 +30,13 @@ export interface QAResult {
   sources: Array<{ pageContent: string; metadata: any }>;
 }
 
+const cache = new Map<string, QAResult>();
+
 export async function answerQuestion(pergunta: string): Promise<QAResult> {
+  if (cache.has(pergunta)) {
+    return cache.get(pergunta)!;
+  }
+
   // Embeddings e BD
   const embeddingFunction = new OllamaEmbeddings({
     baseUrl: OLLAMA_BASE_URL,
@@ -50,7 +56,9 @@ export async function answerQuestion(pergunta: string): Promise<QAResult> {
   // Resposta direta por categoria STRIDE
   const direta = tryDirectCategoryAnswer(pergunta, contents);
   if (direta) {
-    return { answer: direta, sources: documentos as any };
+    const result = { answer: direta, sources: documentos as any };
+    cache.set(pergunta, result);
+    return result;
   }
 
   // Monta prompt e chama LLM
@@ -64,7 +72,9 @@ export async function answerQuestion(pergunta: string): Promise<QAResult> {
   });
 
   const resposta = await modelo.invoke(formattedPrompt);
-  return { answer: String(resposta), sources: documentos as any };
+  const result = { answer: String(resposta), sources: documentos as any };
+  cache.set(pergunta, result);
+  return result;
 }
 
 function detectStrideCategory(pergunta: string): string | null {
