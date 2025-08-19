@@ -6,7 +6,7 @@ import { DocumentProcessor } from './utils/documentProcessor';
 import { CAPECMapping } from './types';
 import * as fs from 'fs';
 import * as path from 'path';
-import { OLLAMA_BASE_URL, OLLAMA_EMBEDDINGS_MODEL, LANCEDB_DIR, LANCEDB_BATCH_SIZE } from './config';
+import { OLLAMA_BASE_URL, OLLAMA_EMBEDDINGS_MODEL, LANCEDB_DIR, LANCEDB_BATCH_SIZE, LANCEDB_TABLE_NAME } from './config';
 
 // Carrega as variáveis de ambiente
 config();
@@ -95,7 +95,7 @@ async function vectorizeChunks(chunks: any[]) {
 
   const dbDir = LANCEDB_DIR;
   const ldb = await connect(dbDir);
-  const tableName = 'capec_attacks';
+  const tableName = LANCEDB_TABLE_NAME; // Usar o nome configurável
 
   let table;
   try {

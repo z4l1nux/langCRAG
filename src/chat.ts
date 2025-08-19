@@ -88,6 +88,20 @@ async function processQuestion(pergunta: string) {
     const result = await answerQuestion(pergunta);
     console.log("🤖 Resposta da IA:", result.answer);
 
+    if (result.sources && result.sources.length > 0) {
+      console.log('\n📚 Fontes:');
+      const uniqueSources = [...new Map(result.sources.map(item => 
+        [item.metadata.source || item.metadata.link, item]
+      )).values()];
+
+      uniqueSources.forEach(source => {
+        const sourceName = source.metadata.source || source.metadata.link || 'Referência desconhecida';
+        if (sourceName !== 'Referência desconhecida') {
+          console.log(`- ${sourceName}`);
+        }
+      });
+    }
+
   } catch (error) {
     console.error('❌ Erro ao processar pergunta:', error);
     console.log('💡 Verifique se o banco de dados foi criado: npm run create-db');
