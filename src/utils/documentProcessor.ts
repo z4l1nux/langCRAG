@@ -50,30 +50,64 @@ export class DocumentProcessor {
 
   private processMD(content: string): DocumentChunk[] {
     const chunks: DocumentChunk[] = [];
-    const sectionRegex = /^##\s+([^\n]+)\n([\s\S]*?)(?=^##\s+|\Z)/gm;
-    let match: RegExpExecArray | null;
-
-    // Se existirem seções de segundo nível (##), cria um chunk por seção
-    while ((match = sectionRegex.exec(content)) !== null) {
-      const categoryTitle = match[1].trim();
-      const sectionBody = match[2].trim();
-
+    
+    // Process the CAPEC markdown structure properly
+    // First extract the main title
+    const titleMatch = content.match(/^# \[([^\]]+)\]/);
+    const mainTitle = titleMatch ? titleMatch[1] : 'CAPEC S.T.R.I.D.E. Mapping';
+    
+    // Extract all categories (##) and their content
+    const categoryRegex = /^## ([^\n]+)\n([\s\S]*?)(?=^## |\Z)/gm;
+    let categoryMatch: RegExpExecArray | null;
+    
+    while ((categoryMatch = categoryRegex.exec(content)) !== null) {
+      const categoryName = categoryMatch[1].trim();
+      const categoryContent = categoryMatch[2].trim();
+      
+      // Create a chunk for the category
       chunks.push({
-        id: `md-${categoryTitle.toLowerCase().replace(/\s+/g, '-')}`,
-        content: `CATEGORIA: ${categoryTitle}\n\n${sectionBody}`,
-        metadata: { filetype: '.md', category: categoryTitle, attack: '', level: 0 }
+        id: `md-category-${categoryName.toLowerCase().replace(/\s+/g, '-')}`,
+        content: `CATEGORIA: ${categoryName}\n\n${categoryContent}`,
+        metadata: { 
+          filetype: '.md', 
+          category: categoryName, 
+          attack: '', 
+          level: 1 
+        }
       });
+      
+      // Extract CAPEC attacks from this category
+      const capecRegex = /^###?\s+\[([^\]]+)\]\(([^)]+)\)/gm;
+      let capecMatch: RegExpExecArray | null;
+      
+      while ((capecMatch = capecRegex.exec(categoryContent)) !== null) {
+        const attackTitle = capecMatch[1].trim();
+        const attackLink = capecMatch[2].trim();
+        
+        // Create a chunk for each CAPEC attack
+        chunks.push({
+          id: `md-${attackTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`,
+          content: `ATAQUE: ${attackTitle}\nCATEGORIA: ${categoryName}\nLINK: ${attackLink}\n\nEste é um ataque de segurança documentado no CAPEC (Common Attack Pattern Enumeration and Classification).`,
+          metadata: { 
+            filetype: '.md', 
+            category: categoryName, 
+            attack: attackTitle, 
+            link: attackLink,
+            level: 2 
+          }
+        });
+      }
     }
-
-    // Se não encontrou seções, retorna o conteúdo inteiro como um único chunk
+    
+    // If no categories found, return the entire content as one chunk
     if (chunks.length === 0) {
       chunks.push({
-        id: 'md-1',
-        content,
-        metadata: { filetype: '.md', category: '', attack: '', level: 0 }
+        id: 'md-main',
+        content: content,
+        metadata: { filetype: '.md', category: mainTitle, attack: '', level: 0 }
       });
     }
-
+    
     return chunks;
   }
 

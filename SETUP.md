@@ -33,13 +33,23 @@ LANCEDB_BATCH_SIZE=100
 
 ### 3. Criar a Base de Conhecimento
 
-Execute o comando para processar o arquivo JSON e criar os embeddings:
+Execute o comando para processar os arquivos e criar os embeddings:
 
 ```bash
-npm run create-embeddings
+npm run create-db
 ```
 
-Este processo pode demorar alguns minutos dependendo do tamanho do arquivo.
+Este processo pode demorar alguns minutos dependendo do tamanho dos arquivos.
+
+### 4. Atualizar a Base de Conhecimento
+
+Quando você adicionar novos arquivos à pasta `data/`, execute o comando para atualizar o banco de dados:
+
+```bash
+npm run update-db
+```
+
+Este comando irá processar apenas os arquivos novos ou modificados, tornando o processo mais rápido.
 
 ### 4. Testar o Sistema
 
@@ -103,8 +113,11 @@ npm run build
 # Executar arquivo principal
 npm run dev
 
-# Criar embeddings
-npm run create-embeddings
+# Criar banco de dados
+npm run create-db
+
+# Atualizar banco de dados
+npm run update-db
 
 # Chat interativo
 npm run chat

@@ -1,0 +1,38 @@
+{
+  "CAPEC S.T.R.I.D.E. Mapping": {
+    "link": "https://capec.mitre.org/data/definitions/1000.html",
+    "children": {
+      "Information Disclosure": {
+        "link": "",
+        "children": {
+          "CAPEC-129: Pointer Manipulation": {
+            "link": "https://capec.mitre.org/data/definitions/129.html",
+            "children": {}
+          },
+          "CAPEC-212: Functionality Misuse": {
+            "link": "https://capec.mitre.org/data/definitions/212.html",
+            "children": {
+              "CAPEC-48: Passing Local Filenames to Functions That Expect a URL": {
+                "link": "https://capec.mitre.org/data/definitions/48.html",
+                "children": {}
+              },
+              "CAPEC-111: JSON Hijacking (aka JavaScript Hijacking)": {
+                "link": "https://capec.mitre.org/data/definitions/111.html",
+                "children": {}
+              },
+              "CAPEC-620: Drop Encryption Level": {
+                "link": "https://capec.mitre.org/data/definitions/620.html",
+                "children": {
+                  "CAPEC-606: Weakening of Cellular Encryption": {
+                    "link": "https://capec.mitre.org/data/definitions/606.html",
+                    "children": {}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

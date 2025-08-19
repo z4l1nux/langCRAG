@@ -19,14 +19,14 @@ Visão geral do fluxo: (1) pergunta do cliente → (2) busca semântica no banco
 
 - **TypeScript** - Linguagem principal
 - **LangChain** - Framework para construção de fluxos de IA
-- **Ollama** - LLM local (modelo atual padrão: gpt-oss:20b; você pode testar outros modelos e escolher o mais satisfatório)
+- **Ollama** - LLM local (modelo atual padrão: qwen2.5-coder:7b; você pode testar outros modelos e escolher o mais satisfatório)
 - **LanceDB** - Banco de dados vetorial
 - **Node.js** - Runtime JavaScript
 
 ## 📋 Pré-requisitos
 
 - Node.js 18+ instalado
-- Ollama rodando (modelo atual: gpt-oss:20b). Você pode trocar por outros modelos via variável `OLLAMA_MODEL`.
+- Ollama rodando (modelo atual: qwen2.5-coder:7b). Você pode trocar por outros modelos via variável `OLLAMA_MODEL`.
 - Arquivo `capec-stride-mapping.json` (já incluído no projeto)
 
 ## 🚀 Instalação e Configuração
@@ -43,7 +43,7 @@ source ./.env 2>/dev/null || true
 curl -sS "$OLLAMA_BASE_URL/api/tags" | head -c 400
 
 # Modelo atual recomendado
-ollama pull gpt-oss:20b
+ollama pull qwen2.5-coder:7b
 
 # Você pode testar outros e comparar resultados
 # Exemplos:
@@ -52,7 +52,7 @@ ollama pull gpt-oss:20b
 #   ollama pull qwen2.5:7b
 
 # Para usar um modelo específico no app (ou no .env)
-# export OLLAMA_MODEL=gpt-oss:20b
+# export OLLAMA_MODEL=qwen2.5-coder:7b
 ```
 
 ### 3. **Criar banco de dados:**
@@ -60,7 +60,12 @@ ollama pull gpt-oss:20b
 npm run create-db
 ```
 
-### 4. **Usar o chat:**
+### 4. **Atualizar banco de dados (incremental):**
+```bash
+npm run update-db
+```
+
+### 5. **Usar o chat:**
 ```bash
 npm run chat
 ```
@@ -69,6 +74,7 @@ npm run chat
 
 ```bash
 npm run create-db          # Cria o banco vetorial com embeddings
+npm run update-db          # Atualiza o banco vetorial com novos arquivos
 npm run chat               # Inicia o chat interativo
 npm run test-ollama        # Testa conexão com Ollama
 npm run build              # Compila TypeScript
@@ -111,12 +117,23 @@ npm run create-db
 ```
 
 Este comando irá:
-- Ler o arquivo `capec-stride-mapping.json`
+- Ler os arquivos na pasta `data/`
 - Processar todos os ataques e categorias
 - Gerar embeddings usando Ollama
 - Armazenar no LanceDB
 
-### **2. Usar o chat:**
+### **2. Atualizar o banco de dados:**
+```bash
+npm run update-db
+```
+
+Este comando irá:
+- Verificar se há arquivos novos ou modificados na pasta `data/`
+- Processar apenas os arquivos novos ou modificados
+- Adicionar os novos embeddings ao banco existente
+- Manter um registro dos arquivos já processados
+
+### **3. Usar o chat:**
 ```bash
 npm run chat
 ```

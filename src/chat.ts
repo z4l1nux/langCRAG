@@ -8,7 +8,7 @@ import * as readline from 'readline';
 import * as path from 'path';
 import * as util from 'util';
 import { answerQuestion } from './services/qaService';
-import { OLLAMA_BASE_URL, OLLAMA_EMBEDDINGS_MODEL, LANCEDB_DIR } from './config';
+import { OLLAMA_BASE_URL, OLLAMA_EMBEDDINGS_MODEL, LANCEDB_DIR, LANCEDB_TABLE_NAME } from './config';
 
 // Carrega as variáveis de ambiente
 config();
@@ -74,7 +74,7 @@ async function processQuestion(pergunta: string) {
 
     const dbDir = LANCEDB_DIR;
     const ldb = await connect(dbDir);
-    const table = await ldb.openTable('capec_attacks');
+    const table = await ldb.openTable(LANCEDB_TABLE_NAME);
     const db = new LanceDBStore(embeddingFunction, { table });
 
     // Compara a pergunta do usuário com o banco de dados

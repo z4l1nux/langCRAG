@@ -8,6 +8,7 @@
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
     "create-db": "echo 'INFO: Certifique-se de que o servidor Ollama está em execução. Use \"npm run ollama:start\" em outro terminal, se necessário.' && ts-node src/createDatabase.ts",
+    "update-db": "ts-node src/updateDatabase.ts",
     "ollama:start": "ollama serve",
     "chat": "ts-node src/chat.ts",
     "test-ollama": "ts-node src/testOllama.ts",
